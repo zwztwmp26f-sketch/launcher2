@@ -1,0 +1,23 @@
+name: build
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: unzip -q LiquidLauncher.zip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
+      - working-directory: LiquidLauncher
+        run: gradle assembleDebug --no-daemon
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.3.1-${{ github.run_number }}
+          files: LiquidLauncher/app/build/outputs/apk/debug/app-debug.apk
